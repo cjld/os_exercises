@@ -94,7 +94,7 @@ getuid 获取用户标识号
 
  nm: 查看文件符号表, 如下为nm的输出信息
 
-
+```
      0804a01c d hello
     08048294 T _init
     08049f0c t __init_array_end
@@ -109,6 +109,7 @@ getuid 获取用户标识号
     08048460 T __libc_csu_fini
     080483f0 T __libc_csu_init
              U __libc_start_main@@GLIBC_2.0
+```
 
   file 查看文件类型
 
@@ -128,7 +129,7 @@ getuid 获取用户标识号
   strace : trace system calls and signals, 可以通过 strace 命令查看系统调用和信号.
   如下为使用 strace 分析 lab-ex0.exe 中系统调用的过程, 可以清晰的看到系统调用的参数和返回值.
 
-
+```
     execve("./lab1-ex0.exe", ["./lab1-ex0.exe"], [/* 74 vars */]) = 0
     [ Process PID=6871 runs in 32 bit mode. ]
     brk(0)                                  = 0x8b19000
@@ -157,7 +158,7 @@ getuid 获取用户标识号
     write(1, "hello world\n", 12hello world
     )           = 12
     exit_group(12)                          = ?
-
+```
 
 
 
