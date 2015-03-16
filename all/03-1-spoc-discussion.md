@@ -58,7 +58,7 @@ http://coolshell.cn/tag/buddy
 通过参考 `ucore_lab\labcodes_answer\lab8_result\kern\mm\pmm.h` 中的结构,
 实现了代码:
 * [test.py 测试用例](./src/03-1-spoc/test.py)
-* [pmm.py 内存管理算法](./src/03-1-spoc/test.py)
+* [pmm.py 内存管理算法](./src/03-1-spoc/pmm.py)
 我使用python实现的几个结构如下:
 
 ```
