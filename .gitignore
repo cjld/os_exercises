@@ -17,3 +17,4 @@ _book
 
 # swap
 *~
+/all/src/03-1-spoc/*.pyc
