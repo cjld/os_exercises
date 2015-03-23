@@ -15,11 +15,11 @@ x86保护模式中权限管理无处不在，下面哪些时候要检查访问�
 - [x] 代码跳转过程中
 - [x] 中断处理过程中
 - [ ] ALU计算过程中
- 
+
 > 前三个需要。这里假定ALU完成计算所需数据都已经在CPU内部了。
 
 
-请描述ucore OS建立页机制的准备工作包括哪些步骤？ (w4l1) 
+请描述ucore OS建立页机制的准备工作包括哪些步骤？ (w4l1)
 ```
   + 采分点：说明了ucore OS在让页机制正常工作的主要准备工作
   - 答案没有涉及如下3点；（0分）
@@ -30,18 +30,22 @@ x86保护模式中权限管理无处不在，下面哪些时候要检查访问�
  ```
 - [x]  
 
->  
+>  首先需要已经完成段机制的建立，这时已经对GDT进行了初始化。
+然后通过内存管理机制探测物理内存并建立页目录表和页表，
+设置CR0寄存器以使能页机制 之后需要对GDT进行再次初始化以适应页机制。
 
 ---
 
 ## 小组思考题
 ---
 
-（1）（spoc）请用lab1实验的基准代码（即没有修改的需要填空的源代码）来做如下实验： 执行`make qemu`，会得到一个输出结果，请给出合理的解释：为何qemu退出了？【提示】需要对qemu增加一些用于基于执行过的参数，重点是分析其执行的指令和产生的中断或异常。 
+（1）（spoc）请用lab1实验的基准代码（即没有修改的需要填空的源代码）来做如下实验： 执行`make qemu`，会得到一个输出结果，请给出合理的解释：为何qemu退出了？【提示】需要对qemu增加一些用于基于执行过的参数，重点是分析其执行的指令和产生的中断或异常。
 
 - [x]  
 
-> 
+> 我们将kernel的代码中的代码`intr_enable()`中的代码注释掉以后, 可以发现qemu不再退出,
+因此我们可以推断, 打开中断导致的crash, 因为在代码`trap.c`中, 我们需要对中断向量表进行初始化,
+没有初始化直接打开中断就会导致crash
 
 （2）(spoc)假定你已经完成了lab1的实验,接下来是对lab1的中断处理的回顾：请把你的学号对37(十进制)取模，得到一个数x（x的范围是-1<x<37），然后在你的答案的基础上，修init.c中的kern_init函数，在大约36行处，即
 
@@ -51,12 +55,45 @@ x86保护模式中权限管理无处不在，下面哪些时候要检查访问�
 语句之后，加入如下语句(把x替换为你学号 mod 37得的值)：
 ```
     asm volatile ("int $x");
-```    
-然后，请回答加入这条语句后，执行`make qemu`的输出结果与你没有加入这条语句后执行`make qemu`的输出结果的差异，并解释为什么有差异或没差异？ 
+```
+然后，请回答加入这条语句后，执行`make qemu`的输出结果与你没有加入这条语句后执行`make qemu`的输出结果的差异，并解释为什么有差异或没差异？
 
 - [x]  
 
-> 
+> 学号为2012011373, 使用中断号28, 得到以下结果
+```
+trapframe at 0x7b5c
+  edi  0x00000000
+  esi  0x00010094
+  ebp  0x00007bc8
+  oesp 0x00007b7c
+  ebx  0x00010094
+  edx  0x000000a1
+  ecx  0x00000000
+  eax  0x000000ff
+  ds   0x----0010
+  es   0x----0010
+  fs   0x----0023
+  gs   0x----0023
+  trap 0x0000001c (unknown trap)
+  err  0x00000000
+  eip  0x00100070
+  cs   0x----0008
+  flag 0x00000207 CF,PF,IF,IOPL=0
+kernel panic at kern/trap/trap.c:184:
+    unexpected trap in kernel.
+```
+
+可以发现, 这并不是一个合法的中断号, 触发到了代码如下:
+```
+default:
+    // in kernel, it must be a mistake
+    if ((tf->tf_cs & 3) == 0) {
+        print_trapframe(tf);
+        panic("unexpected trap in kernel.\n");
+    }
+```
+
 
 （3）对于lab2的输出信息，请说明数字的含义
 ```
@@ -68,10 +105,10 @@ e820map:
   memory: 00020000, [07fe0000, 07ffffff], type = 2.
   memory: 00040000, [fffc0000, ffffffff], type = 2.
 ```
-修改lab2，让其显示` type="some string"` 让人能够读懂，而不是不好理解的数字1,2  (easy) 
+修改lab2，让其显示` type="some string"` 让人能够读懂，而不是不好理解的数字1,2  (easy)
 - [x]  
 
-> 
+>
 
 （4）(spoc)有一台只有页机制的简化80386的32bit计算机，有地址范围位0~256MB的物理内存空间（physical memory），可表示大小为256MB，范围为0xC0000000~0xD0000000的虚拟地址空间（virtual address space）,页大小（page size）为4KB，采用二级页表，一个页目录项（page directory entry ，PDE）大小为4B,一个页表项（page-table entries PTEs）大小为4B，1个页目录表大小为4KB，1个页表大小为4KB。
 ```
@@ -79,7 +116,7 @@ PTE格式（32 bit） :
   PFN19 ... PFN0|NOUSE9 ... NOUSE0|WRITABLE|VALID
 PDE格式（32 bit） :
   PT19 ... PT0|NOUSE9 ... NOUSE0|WRITABLE|VALID
- 
+
 其中：
 NOUSE9 ... NOUSE0为保留位，要求固定为0
 WRITABLE：1表示可写，0表示只读
@@ -110,7 +147,59 @@ va 0xcd82c07c, pa 0x0c20907c, pde_idx 0x00000336, pde_ctx  0x00037003, pte_idx 0
 
 - [x]  
 
-> 
+> 代码如下:
+
+```
+#include <iostream>
+#include <cstdio>
+using namespace std;
+
+void translate(unsigned int va, unsigned int pa) {
+    printf("va 0x%08x, pa 0x%08x, ", va, pa);
+    unsigned int pde_idx = (va & 0xcffc0000) >> 22;
+    printf("pde_idx 0x%08x, ", pde_idx);
+    unsigned int no = pde_idx - 0x300 + 1;
+    unsigned int pde_ctx = (no << 12)+ 0x3;
+    printf("pde_ctx 0x%08x, ", pde_ctx);
+    unsigned int pte_idx = (va & 0x003ff000) >> 12;
+    printf("pte_idx 0x%08x, ", pte_idx);
+    unsigned int pte_ctx = (pa & 0xfffff000) | (0x3);
+    printf("pte_ctx 0x%08x\n", pte_ctx);
+}
+
+int main() {
+    unsigned int va, pa;
+    while (scanf("va 0x%x, pa 0x%x\n", &va, &pa) != EOF) {
+        translate(va, pa);
+    }
+    return 0;
+}
+```
+
+输出结果为:
+```
+va 0xc2265b1f, pa 0x0d8f1b1f, pde_idx 0x00000308, pde_ctx 0x00009003, pte_idx 0x
+00000265, pte_ctx 0x0d8f1003
+va 0xcc386bbc, pa 0x0414cbbc, pde_idx 0x00000330, pde_ctx 0x00031003, pte_idx 0x
+00000386, pte_ctx 0x0414c003
+va 0xc7ed4d57, pa 0x07311d57, pde_idx 0x0000031f, pde_ctx 0x00020003, pte_idx 0x
+000002d4, pte_ctx 0x07311003
+va 0xca6cecc0, pa 0x0c9e9cc0, pde_idx 0x00000329, pde_ctx 0x0002a003, pte_idx 0x
+000002ce, pte_ctx 0x0c9e9003
+va 0xc18072e8, pa 0x007412e8, pde_idx 0x00000306, pde_ctx 0x00007003, pte_idx 0x
+00000007, pte_ctx 0x00741003
+va 0xcd5f4b3a, pa 0x06ec9b3a, pde_idx 0x00000335, pde_ctx 0x00036003, pte_idx 0x
+000001f4, pte_ctx 0x06ec9003
+va 0xcc324c99, pa 0x0008ac99, pde_idx 0x00000330, pde_ctx 0x00031003, pte_idx 0x
+00000324, pte_ctx 0x0008a003
+va 0xc7204e52, pa 0x0b8b6e52, pde_idx 0x0000031c, pde_ctx 0x0001d003, pte_idx 0x
+00000204, pte_ctx 0x0b8b6003
+va 0xc3a90293, pa 0x0f1fd293, pde_idx 0x0000030e, pde_ctx 0x0000f003, pte_idx 0x
+00000290, pte_ctx 0x0f1fd003
+va 0xce6c3f32, pa 0x007d4f32, pde_idx 0x00000339, pde_ctx 0x0003a003, pte_idx 0x
+000002c3, pte_ctx 0x007d4003
+```
+
 
 ---
 
@@ -118,7 +207,7 @@ va 0xcd82c07c, pa 0x0c20907c, pde_idx 0x00000336, pde_ctx  0x00037003, pte_idx 0
 
 ---
 
-（1）请简要分析Intel的x64 64bit体系结构下的分页机制是如何实现的 
+（1）请简要分析Intel的x64 64bit体系结构下的分页机制是如何实现的
 ```
   + 采分点：说明Intel x64架构的分页机制的大致特点和页表执行过程
   - 答案没有涉及如下3点；（0分）
@@ -134,6 +223,6 @@ va 0xcd82c07c, pa 0x0c20907c, pde_idx 0x00000336, pde_ctx  0x00037003, pte_idx 0
 
 - [x]  
 
-> 
+>
 
 ---
