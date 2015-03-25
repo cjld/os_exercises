@@ -78,6 +78,38 @@ Virtual Address 6890:
 Virtual Address 0af6:
 Virtual Address 1e6f:
 ```
+> 对应代码详见[此处](./04-1-spoc/test.py)
+
+运行结果如下:
+```
+Virtual Address 6653:
+  pde index:0x19
+  pde contents:(valid 0, pfn 0x7f)
+  Fault (page directory entry not valid)
+
+Virtual Address 1c13:
+  pde index:0x7
+  pde contents:(valid 1, pfn 0x3d)
+  pte index:0x0  pte content:(valid 1, pfn 0x76)
+  Translate to Physical Address 0xed3 --> Value: 0x12
+
+Virtual Address 6890:
+  pde index:0x1a
+  pde contents:(valid 0, pfn 0x7f)
+  Fault (page directory entry not valid)
+
+Virtual Address 0af6:
+  pde index:0x2
+  pde contents:(valid 1, pfn 0x21)
+  pte index:0x17  pte content:(valid 0, pfn 0x7f)
+  To Disk Sector Address 0xff6 --> Value: 0x3
+
+Virtual Address 1e6f:
+  pde index:0x7
+  pde contents:(valid 1, pfn 0x3d)
+  pte index:0x13  pte content:(valid 0, pfn 0x16)
+  To Disk Sector Address 0x2cf --> Value: 0x1c
+```
 
 **提示:**
 ```
@@ -101,7 +133,7 @@ Virtual Address 0330(0 00000 11001 1_0000):
   page 6c: e1 b5 a1 c1 b3 e4 a6 bd 7f 7f 7f 7f 7f 7f 7f 7f
            7f 7f 7f 7f 7f 7f 7f 7f 7f 7f 7f 7f 7f 7f 7f 7f
   page 61: 7c 7f 7f 4e 4a 7f 3b 5a 2a be 7f 6d 7f 66 7f a7
-           69 96 7f c8 3a 7f a5 83 07 e3 7f 37 62 30 7f 3f 
+           69 96 7f c8 3a 7f a5 83 07 e3 7f 37 62 30 7f 3f
     --> pte index:0x19(11001)  pte contents:(0xe3, 1 110_0011, valid 1, pfn 0x63)
   page 63: 16 00 0d 15 00 1c 1d 16 02 02 0b 00 0a 00 1e 19
            02 1b 06 06 14 1d 03 00 0b 00 12 1a 05 03 0a 1d
@@ -112,9 +144,9 @@ Virtual Address 1e6f(0 001_11 10_011 0_1111):
   page 6c: e1 b5 a1 c1 b3 e4 a6 bd 7f 7f 7f 7f 7f 7f 7f 7f
            7f 7f 7f 7f 7f 7f 7f 7f 7f 7f 7f 7f 7f 7f 7f 7f
   page 3d: f6 7f 5d 4d 7f 04 29 7f 1e 7f ef 51 0c 1c 7f 7f
-           7f 76 d1 16 7f 17 ab 55 9a 65 ba 7f 7f 0b 7f 7f 
+           7f 76 d1 16 7f 17 ab 55 9a 65 ba 7f 7f 0b 7f 7f
     --> pte index:0x13  pte contents:(0x16, valid 0, pfn 0x16)
-  disk 16: 00 0a 15 1a 03 00 09 13 1c 0a 18 03 13 07 17 1c 
+  disk 16: 00 0a 15 1a 03 00 09 13 1c 0a 18 03 13 07 17 1c
            0d 15 0a 1a 0c 12 1e 11 0e 02 1d 10 15 14 07 13
       --> To Disk Sector Address 0x2cf(0001011001111) --> Value: 1c
 ```
@@ -124,4 +156,3 @@ Virtual Address 1e6f(0 001_11 10_011 0_1111):
 (1)请分析原理课的缺页异常的处理流程与lab3中的缺页异常的处理流程（分析粒度到函数级别）的异同之处。
 
 (2)在X86-32虚拟页式存储系统中，假定第一级页表的起始地址是0xE8A3 B000，进程地址空间只有第一级页表的4KB在内存。请问这4KB的虚拟地址是多少？它对应的第一级页表项和第二级页表项的物理地址是多少？页表项的内容是什么？
-
