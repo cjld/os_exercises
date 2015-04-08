@@ -48,18 +48,19 @@ NOTICE
 
 ## SPOC小组思考题
 
-(1) (spoc)设计一个简化的进程管理子系统，可以管理并调度如下简化进程.给出了[参考代码](https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab4/process-concept-homework.py)，请理解代码，并完成＂YOUR CODE"部分的内容．　可２个人一组
+(1) (spoc)设计一个简化的进程管理子系统，可以管理并调度如下简化进程。给出了[参考代码](https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab4/process-concept-homework.py)，请理解代码，并完成＂YOUR CODE"部分的内容。可2个人一组
 
-### 进程的状态 
+> 补充完整之后的[代码](../05-1/process-concept-homework.py)
+
+### 进程的状态
 
  - RUNNING - 进程正在使用CPU
  - READY   - 进程可使用CPU
  - DONE    - 进程结束
 
 ### 进程的行为
- - 使用CPU, 
+ - 使用CPU,
  - 发出YIELD请求,放弃使用CPU
-
 
 ### 进程调度
  - 使用FIFO/FCFS：先来先服务,
@@ -75,13 +76,13 @@ PROC_PC = 'pc_'
 PROC_ID = 'pid_'
 PROC_STATE = 'proc_state_'
 ```
- - 当前进程 curr_proc 
+ - 当前进程 curr_proc
  - 进程列表：proc_info是就绪进程的队列（list），
- - 在命令行（如下所示）需要说明每进程的行为特征：（１）使用CPU ;(2)等待I/O
+ - 在命令行（如下所示）需要说明每进程的行为特征：(1)使用CPU ;(2)等待I/O
 ```
    -l PROCESS_LIST, --processlist= X1:Y1,X2:Y2,...
-   X 是进程的执行指令数; 
-   Ｙ是执行CPU的比例(0..100) ，如果是100，表示不会发出yield操作
+   X 是进程的执行指令数;
+   Y 是执行CPU的比例(0..100) ，如果是100，表示不会发出yield操作
 ```
  - 进程切换行为：系统决定何时(when)切换进程:进程结束或进程发出yield请求
 
@@ -109,16 +110,16 @@ Process 0
 
 Important behaviors:
   System will switch when the current process is FINISHED or ISSUES AN YIELD
-Time     PID: 0 
-  1     RUN:yld 
-  2     RUN:yld 
-  3     RUN:cpu 
-  4     RUN:cpu 
-  5     RUN:yld 
+Time     PID: 0
+  1     RUN:yld
+  2     RUN:yld
+  3     RUN:cpu
+  4     RUN:cpu
+  5     RUN:yld
 
 ```
 
-   
+
 #### 例２
 ```
 $./process-simulation.py  -l 5:50,5:50
@@ -139,16 +140,16 @@ Process 1
 
 Important behaviors:
   System will switch when the current process is FINISHED or ISSUES AN YIELD
-Time     PID: 0     PID: 1 
-  1     RUN:yld      READY 
-  2       READY    RUN:cpu 
-  3       READY    RUN:yld 
-  4     RUN:yld      READY 
-  5       READY    RUN:cpu 
-  6       READY    RUN:cpu 
-  7       READY    RUN:yld 
-  8     RUN:cpu      READY 
-  9     RUN:cpu      READY 
- 10     RUN:yld      READY 
- 11     RUNNING       DONE 
+Time     PID: 0     PID: 1
+  1     RUN:yld      READY
+  2       READY    RUN:cpu
+  3       READY    RUN:yld
+  4     RUN:yld      READY
+  5       READY    RUN:cpu
+  6       READY    RUN:cpu
+  7       READY    RUN:yld
+  8     RUN:cpu      READY
+  9     RUN:cpu      READY
+ 10     RUN:yld      READY
+ 11     RUNNING       DONE
 ```
