@@ -156,6 +156,8 @@ do_wait: begin
 
 以及running, exit等生命周期
 
+具体代码详见 <https://github.com/cjld/ucore_lab/tree/master/related_info/lab4/lab4-spoc-discuss>
+
 ### 练习4 （非必须，有空就做）：增加可以睡眠的内核线程，睡眠的条件和唤醒的条件可自行设计，并给出测试用例，并在spoc练习报告中给出设计实现说明
 
 ### 扩展练习1: 进一步裁剪本练习中的代码，比如去掉页表的管理，只保留段机制，中断，内核线程切换，print功能。看看代码规模会小到什么程度。
