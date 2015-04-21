@@ -48,6 +48,62 @@ https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab1/lab1-boot-with
 
 (报告可课后完成)请理解grub multiboot spec的含义，并分析ucore_lab是如何实现符合grub multiboot spec的，并形成spoc练习报告。
 
+**答**
+
+出现问题:
+
+*   `nasm` not found, 我们apt-get 一个即可
+*   在真机上测试之前, 先尝试是否可以使用virtualbox来boot我们的u盘,
+    使用virtualbox boot u 盘的方法[在此](http://www.pendrivelinux.com/boot-a-usb-flash-drive-in-virtualbox/)
+
+然后就可以在真机以及虚拟机里跑了
+![](./pic/541.jng)
+![](./pic/542.jng)
+
+**理解grub multiboot spec**
+
+我们 diff Lab1-X 和 Lab1, 可以发现主要增加了一个文件夹 `mboot`, 其中的文件包含了
+为了支持grub所需要做的事情
+
+在文件`entry.asm`里面能看到这么一段代码
+```
+; This is the GRUB Multiboot header. A boot signature
+dd MULTIBOOT_HEADER_MAGIC
+dd MULTIBOOT_HEADER_FLAGS
+dd MULTIBOOT_CHECKSUM
+dd 0, 0, 0, 0, 0 ; address fields
+```
+这段代码是 GRUB Multiboot 的头, 有我们提供给 grub, 告诉grub启动方式
+
+调查规范, 发现每一项的功能主要如下:
+```
+0  u32  magic  必需   magic域是标志头的魔数，它必须等于十六进制值0x1BADB002。
+4  u32  flags  必需   flags域指出OS映像需要引导程序提供或支持的特性
+8  u32  checksum  必需    域checksum是一个32位的无符号值，当与其他的magic域（也就是magic和flags）相加时，结果必须是32位的无符号值0（即magic + flags + checksum = 0）。
+12  u32  header_addr  包含对应于Multiboot头的开始处的地址——这也是magic值的物理地址。这个域用来同步OS映象偏移量和物理内存之间的映射。
+16  u32  load_addr  如果flags[16]被置位
+20  u32  load_end_addr  如果flags[16]被置位
+24  u32  bss_end_addr  如果flags[16]被置位
+28  u32  entry_addr  如果flags[16]被置位
+32  u32  mode_type  如果flags[2]被置位
+36  u32  width  如果flags[2]被置位
+40  u32  height  如果flags[2]被置位
+44  u32  depth  如果flags[2]被置位
+```
+
+然后就是 grub 启起来以后, 给我们kernel提供的信息, 其中
+eax为magic number `0x2BADB002`, ebx 里包含了我们的**引导信息**
+我们可以在multiboot.h中找到定义, 也就是结构`multiboot_info_t`
+
+`multiboot_info_t` 的加载代码可以在`entry.asm`里面找到这么一段代码
+```
+; interpret multiboot information
+    extern multiboot_init
+    push ebx
+    call multiboot_init
+```
+这样就完成了我们对引导信息的加载
+
 ### (2)(spoc) 理解用户进程的生命周期。
 
 > 需写练习报告和简单编码，完成后放到git server 对应的git repo中
