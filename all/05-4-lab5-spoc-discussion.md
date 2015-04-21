@@ -57,8 +57,8 @@ https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab1/lab1-boot-with
     使用virtualbox boot u 盘的方法[在此](http://www.pendrivelinux.com/boot-a-usb-flash-drive-in-virtualbox/)
 
 然后就可以在真机以及虚拟机里跑了
-![](./pic/541.jng)
-![](./pic/542.jng)
+![](./pic/541.png)
+![](./pic/542.png)
 
 **理解grub multiboot spec**
 
