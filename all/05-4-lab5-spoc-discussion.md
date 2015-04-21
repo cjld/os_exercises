@@ -125,3 +125,128 @@ eax为magic number `0x2BADB002`, ebx 里包含了我们的**引导信息**
 能够把个人思考题和上述知识点中的内容展示出来：即在ucore运行过程中通过`cprintf`函数来完整地展现出来进程A相关的动态执行和内部数据/状态变化的细节。(约全面细致约好)
 
 请完成如下练习，完成代码填写，并形成spoc练习报告
+
+**答**
+
+首先, 我们在`schedule`函数中添加代码, 这样就可以非常方便的
+看到我们进程切换的过程, 添加的 `cprintf` 函数如下:
+```
+void
+schedule(void) {
+    bool intr_flag;
+    list_entry_t *le, *last;
+    struct proc_struct *next = NULL;
+    local_intr_save(intr_flag);
+    {
+    	struct proc_struct* tmp = current;
+    	cprintf("schedule proc %d, state %s\n", current->pid,
+    			get_state_str(current->state));
+        current->need_resched = 0;
+        last = (current == idleproc) ? &proc_list : &(current->list_link);
+        le = last;
+        do {
+            if ((le = list_next(le)) != &proc_list) {
+                next = le2proc(le, list_link);
+                if (next->state == PROC_RUNNABLE) {
+                    break;
+                }
+            }
+        } while (le != last);
+        if (next == NULL || next->state != PROC_RUNNABLE) {
+            next = idleproc;
+        }
+        next->runs ++;
+        if (next != current) {
+            proc_run(next);
+        	cprintf("my state become %s\n", get_state_str(tmp->state));
+        	cprintf("switch proc %d, state %s, run time %d\n",
+        			next->pid, get_state_str(next->state), next->runs);
+        } else {
+        	cprintf("my state become %s\n", get_state_str(tmp->state));
+        	cprintf("continue run proc %d, run time %d\n",
+        			current->pid, current->runs);
+        }
+        cprintf("\n");
+    }
+    local_intr_restore(intr_flag);
+}
+```
+
+其中 `get_state_str` 是一个用来把 proc state 转换成
+字符串的小函数, 他的定义如下:
+```
+const char * get_state_str(enum proc_state state) {
+#define ck_state(STATE) \
+	if (state == STATE) \
+		return "'"#STATE"'";
+
+	ck_state(PROC_UNINIT);
+	ck_state(PROC_SLEEPING);
+	ck_state(PROC_RUNNABLE);
+	ck_state(PROC_ZOMBIE);
+}
+```
+然后我们运行 qemu, 因为我们得到了以下输出:
+```
+I am the parent. Forking the child...
+I am parent, fork a child pid 3
+I am the parent, waiting now..
+schedule proc 2, state 'PROC_SLEEPING'
+I am the child.
+schedule proc 3, state 'PROC_RUNNABLE'
+my state become 'PROC_RUNNABLE'
+continue run proc 3, run time 2
+
+schedule proc 3, state 'PROC_RUNNABLE'
+my state become 'PROC_RUNNABLE'
+continue run proc 3, run time 3
+
+schedule proc 3, state 'PROC_RUNNABLE'
+my state become 'PROC_RUNNABLE'
+continue run proc 3, run time 4
+
+schedule proc 3, state 'PROC_RUNNABLE'
+my state become 'PROC_RUNNABLE'
+continue run proc 3, run time 5
+
+schedule proc 3, state 'PROC_RUNNABLE'
+my state become 'PROC_RUNNABLE'
+continue run proc 3, run time 6
+
+schedule proc 3, state 'PROC_RUNNABLE'
+my state become 'PROC_RUNNABLE'
+continue run proc 3, run time 7
+
+schedule proc 3, state 'PROC_RUNNABLE'
+my state become 'PROC_RUNNABLE'
+continue run proc 3, run time 8
+
+schedule proc 3, state 'PROC_ZOMBIE'
+my state become 'PROC_RUNNABLE'
+switch proc 3, state 'PROC_ZOMBIE', run time 8
+
+waitpid 3 ok.
+exit pass.
+schedule proc 2, state 'PROC_ZOMBIE'
+my state become 'PROC_RUNNABLE'
+switch proc 2, state 'PROC_ZOMBIE', run time 2
+
+```
+
+运行的程序是`user/exit.c`我们来分析一下运行状态:
+
+*   首先父进程fork一个子进程, 这时候并没有什么变化
+*   父进程使用`waitpid`, 等待子进程, 这时候父进程变为
+    `PROC_SLEEPING`, 然后唤醒子进程, 子进程变为`PROC_RUNNABLE`
+*   子进程这时候使用`yield`, 重新返回调度器, 但是可以`runable`的进程仍然是
+    自己, 所以我们可以发现中间若干次`yield`都重新切换回了自己
+*   子进程退出, 变为`PROC_ZOMBIE`, 父进程重新可以调用, 变成`PROC_RUNNABLE`
+*   父进程退出, 也变为`PROC_ZOMBIE`
+
+关于资源分配情况, 我们可以在`struct proc_struct`中找到内存管理结构体
+`struct mm_struct *mm`, 我们跟踪这个结构体, 发现
+
+*   他在`load_icode`被创建
+*   在`do_execve`和`do_exit`中通过统计引用计数被释放
+
+加入对应`cprintf`函数, 发现输出符合我们的预期.
