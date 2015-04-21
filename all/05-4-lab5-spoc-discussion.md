@@ -250,3 +250,6 @@ switch proc 2, state 'PROC_ZOMBIE', run time 2
 *   在`do_execve`和`do_exit`中通过统计引用计数被释放
 
 加入对应`cprintf`函数, 发现输出符合我们的预期.
+
+代码详见<https://github.com/cjld/ucore_lab/tree/master/related_info/lab5/lab5-spoc-discuss/kern/process>
+和<https://github.com/cjld/ucore_lab/tree/master/related_info/lab5/lab5-spoc-discuss/kern/schedule>
