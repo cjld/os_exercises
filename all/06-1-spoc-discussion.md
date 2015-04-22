@@ -20,16 +20,16 @@
    - [How does time command work](http://unix.stackexchange.com/questions/29800/how-does-time-command-work)
    - http://cvs.opensolaris.org/source/xref/onnv/onnv-gate/usr/src/cmd/time/time.c
    - https://github.com/illumos/illumos-gate/blob/master/usr/src/cmd/time/time.c
-   
+
  - 尝试获取一个操作系统的调度算法的性能统计数据（CPU使用率、进程执行）。
- 
+
 ### 先来先服务、短进程优先和最高响应比优先调度算法
 
  - FIFO、SPN、HRRN算法的思路？
  - 如何调试你的调度算法？
 
 ### 时间片轮转、多级反馈队列、公平共享调度算法和ucore调度框架
- 
+
  - RR、MLFQ和FSS算法的思路？
  - RR算法选择时间片长度的依据有哪些？
  - 定义调度算法接口需要考虑哪些因素？
@@ -50,7 +50,9 @@
 
 (1)(spoc) 理解并完善调度算法
 
-实现３种调度算法（SJF，FIFO，RR），可基于python, ruby, C, C++，LISP等）模拟实现，并给出测试。请参考[scheduler-homework.py](https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab6/scheduler-homework.py)代码或独自实现。
+- 补全了[scheduler-homework.py](https://github.com/heihei5418/os_exercises/blob/master/src/06-1-spoc/scheduler-homework.py)
+
+实现3种调度算法（SJF，FIFO，RR），可基于python, ruby, C, C++，LISP等模拟实现，并给出测试。请参考[scheduler-homework.py](https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab6/scheduler-homework.py)代码或独自实现。
 最后统计采用不同调度算法的每个任务的相关时间和总体的平均时间：
 　- turnaround time　周转时间
 　- response time 响应时间
@@ -64,7 +66,7 @@
 
  - 何时切换？
  - 如何统计？
- 
+
 ### 执行结果
 
 采用FIFO调度算法
@@ -76,7 +78,7 @@ ARG jobs 3
 ARG maxlen 10
 ARG seed 0
 
-Here is the job list, with the run time of each job: 
+Here is the job list, with the run time of each job:
   Job 0 ( length = 9 )
   Job 1 ( length = 8 )
   Job 2 ( length = 5 )
@@ -106,7 +108,7 @@ ARG jobs 3
 ARG maxlen 10
 ARG seed 0
 
-Here is the job list, with the run time of each job: 
+Here is the job list, with the run time of each job:
   Job 0 ( length = 9 )
   Job 1 ( length = 8 )
   Job 2 ( length = 5 )
@@ -135,7 +137,7 @@ ARG jobs 3
 ARG maxlen 10
 ARG seed 0
 
-Here is the job list, with the run time of each job: 
+Here is the job list, with the run time of each job:
   Job 0 ( length = 9 )
   Job 1 ( length = 8 )
   Job 2 ( length = 5 )
@@ -176,9 +178,8 @@ Final statistics:
 
 ```
 
-(２)扩展练习1:理解并实现MLFQ调度算法　可基于python, ruby, C, C++，LISP等）模拟实现，并给出测试，在试验报告写出设计思路和测试结果分析。
+(2)扩展练习1:理解并实现MLFQ调度算法　可基于python, ruby, C, C++，LISP等）模拟实现，并给出测试，在试验报告写出设计思路和测试结果分析。
 
 (3)扩展练习2:理解并实现stride调度算法　可基于python, ruby, C, C++，LISP等）模拟实现，并给出测试，在试验报告写出设计思路和测试结果分析。
 
 (4)扩展练习３：理解并实现EDF, RM实时调度算法和优先级反置方法　可基于python, ruby, C, C++，LISP等）模拟实现，并给出测试，在试验报告写出设计思路和测试结果分析。
-
