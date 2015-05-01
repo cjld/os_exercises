@@ -1,7 +1,7 @@
 # IO设备(lec 23) spoc 思考题
 
 ## 个人思考题
-### IO特点 
+### IO特点
  1. 字符设备的特点是什么？
  1. 块设备的特点是什么？
  1. 网络设备的特点是什么？
@@ -11,7 +11,7 @@
  1. 请描述I/O请求到完成的整个执行过程
  1. CPU与设备通信的手段有哪些？
 
-> 显式的IO指令，如x86的in, out； 或者是memory读写方式，即把device的寄存器，内存等映射到物理内存中 
+> 显式的IO指令，如x86的in, out； 或者是memory读写方式，即把device的寄存器，内存等映射到物理内存中
 
 ### IO数据传输
  1. IO数据传输有哪几种？
@@ -40,4 +40,83 @@
 ## 小组思考题
  - (spoc)完成磁盘访问与磁盘寻道算法的作业，具体帮助和要求信息请看[disksim指导信息](https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab8/disksim-homework.md)和[disksim参考代码](https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab8/disksim-homework.py)
 
+运行 ./disksim.py  采用FIFO -a 0
+```
+Block:   0  Seek:  0  Rotate:165  Transfer: 30  Total: 195
 
+TOTALS      Seek:  0  Rotate:165  Transfer: 30  Total: 195
+```
+
+运行 ./disksim.py  采用FIFO -a 6
+```
+Block:   6  Seek:  0  Rotate:345  Transfer: 30  Total: 375
+
+TOTALS      Seek:  0  Rotate:345  Transfer: 30  Total: 375
+```
+
+运行 ./disksim.py  采用FIFO -a 30
+```
+Block:  30  Seek: 80  Rotate:265  Transfer: 30  Total: 375
+
+TOTALS      Seek: 80  Rotate:265  Transfer: 30  Total: 375
+```
+
+运行 ./disksim.py  采用FIFO -a 7,30,8
+```
+Block:   7  Seek:  0  Rotate: 15  Transfer: 30  Total:  45
+Block:  30  Seek: 80  Rotate:220  Transfer: 30  Total: 330
+Block:   8  Seek: 80  Rotate:310  Transfer: 30  Total: 420
+
+TOTALS      Seek:160  Rotate:545  Transfer: 90  Total: 795
+```
+
+运行 ./disksim.py  采用FIFO -a 10,11,12,13,24,1
+```
+Block:  10  Seek:  0  Rotate:105  Transfer: 30  Total: 135
+Block:  11  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  12  Seek: 40  Rotate:320  Transfer: 30  Total: 390
+Block:  13  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  24  Seek: 40  Rotate:260  Transfer: 30  Total: 330
+Block:   1  Seek: 80  Rotate:280  Transfer: 30  Total: 390
+
+TOTALS      Seek:160  Rotate:965  Transfer:180  Total:1305
+```
+
+执行 ./disksim-homework.py -p SSTF -a 10,11,12,13,24,1
+```
+Block:  10  Seek:  0  Rotate:105  Transfer: 30  Total: 135
+Block:  11  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:   1  Seek:  0  Rotate: 30  Transfer: 30  Total:  60
+Block:  12  Seek: 40  Rotate:260  Transfer: 30  Total: 330
+Block:  13  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  24  Seek: 40  Rotate:260  Transfer: 30  Total: 330
+
+TOTALS      Seek: 80  Rotate:655  Transfer:180  Total: 915
+```
+FIFO, SSTF, SATF, BSATF
+
+
+执行 ./disksim-homework.py -p SATF -a 10,11,12,13,24,1
+```
+Block:  10  Seek:  0  Rotate:105  Transfer: 30  Total: 135
+Block:  11  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:   1  Seek:  0  Rotate: 30  Transfer: 30  Total:  60
+Block:  12  Seek: 40  Rotate:260  Transfer: 30  Total: 330
+Block:  13  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  24  Seek: 40  Rotate:260  Transfer: 30  Total: 330
+
+TOTALS      Seek: 80  Rotate:655  Transfer:180  Total: 915
+```
+执行 ./disksim-homework.py -p BSATF -a 10,11,12,13,24,1
+```
+Block:  10  Seek:  0  Rotate:105  Transfer: 30  Total: 135
+Block:  11  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:   1  Seek:  0  Rotate: 30  Transfer: 30  Total:  60
+Block:  12  Seek: 40  Rotate:260  Transfer: 30  Total: 330
+Block:  13  Seek:  0  Rotate:  0  Transfer: 30  Total:  30
+Block:  24  Seek: 40  Rotate:260  Transfer: 30  Total: 330
+
+TOTALS      Seek: 80  Rotate:655  Transfer:180  Total: 915
+```
+
+可以发现后面几种方法相同, 因为一开始磁道的位置总是在第0道
