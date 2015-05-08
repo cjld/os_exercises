@@ -14,7 +14,7 @@
         调用进程进入等待队列s.queue;
         阻塞调用进程;
 }
-s.count--;              //有可用资源，占用该资源； 
+s.count--;              //有可用资源，占用该资源；
 ```
 
 > 参考回答： 它的问题是，不能按FIFO进行信号量申请。
@@ -47,7 +47,11 @@ s.count--;              //有可用资源，占用该资源；
 
  - 在读者-写者问题的读者优先和写者优先在行为上有什么不同？
  - 在读者-写者问题的读者优先实现中优先于读者到达的写者在什么地方等待？
- 
+
 ## 小组思考题
 
 1. （spoc） 每人用python threading机制用信号量和条件变量两种手段分别实现[47个同步问题](07-2-spoc-pv-problems.md)中的一题。向勇老师的班级从前往后，陈渝老师的班级从后往前。请先理解[]python threading 机制的介绍和实例](https://github.com/chyyuu/ucore_lab/tree/master/related_info/lab7/semaphore_condition)
+
+题目选择为第7题
+
+[代码见此](./07-2/)
