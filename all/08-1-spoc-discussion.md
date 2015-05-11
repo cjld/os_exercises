@@ -53,6 +53,103 @@
 
  - (spoc) 以小组为单位，请思考在lab1~lab5的基础上，是否能够实现IPC机制，请写出如何实现信号，管道或共享内存（三选一）的设计方案。
 
+以实现信号为例, 在现有的 proc struct 中增加一个 signal_handle 的函数指针, 用于
+储存信号处理程序
+
+当一个进程向另一个进程发送信号时, 我们修改目标进程的栈, 将信号处理程序压入栈
+中, 同时将对应的参数也一并压入栈中
+
  - (spoc) 扩展：用C语言实现某daemon程序，可检测某网络服务失效或崩溃，并用信号量机制通知重启网络服务。[信号机制的例子](https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab7/ipc/signal-ex1.c)
 
+这里我们可以通过 `int kill(pid_t pid, int signo);` 发送0信号的返回值来判断
+进程是否存活
+
+部分代码如下:
+```
+
+int main()
+{
+   pid_t deamon_pid = get_deamon_pid();
+
+   while(1)
+   {
+      sleep(1000);
+      int a = kill(deamon_pid, 0);
+      if (a == -1)
+        deamon_pid = restart_proc();
+   }
+   return EXIT_SUCCESS;
+}
+```
+
  - (spoc) 扩展：用C语言写测试用例，测试管道、消息队列和共享内存三种通信机制进行不同通信间隔和通信量情况下的通信带宽、通信延时、带宽抖动和延时抖动方面的性能差异。[管道的例子](https://github.com/chyyuu/ucore_lab/blob/master/related_info/lab7/ipc/pipe-ex2.c)
+
+
+测试程序如下:
+```
+#include <sys/wait.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <string.h>
+#include <ctime>
+int
+main(int argc, char *argv[])
+{
+    int pipefd[2];
+    pid_t cpid;
+    char buf;
+    int n;
+    long long tt;
+    if (argc != 2) {
+        fprintf(stderr, "Usage: %s <string>\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+    n = atoi(argv[1]);
+    fprintf(stdout, "size %d\n", argc);
+    if (pipe(pipefd) == -1) {
+        perror("pipe");
+        exit(EXIT_FAILURE);
+    }
+    cpid = fork();
+    if (cpid == -1) {
+        perror("fork");
+        exit(EXIT_FAILURE);
+    }
+    tt = clock();
+    if (cpid == 0) {    /* Child reads from pipe */
+        close(pipefd[1]);          /* Close unused write end */
+        while (read(pipefd[0], &buf, 1) > 0);
+        //write(STDOUT_FILENO, "\n", 1);
+        close(pipefd[0]);
+        _exit(EXIT_SUCCESS);
+    } else {            /* Parent writes argv[1] to pipe */
+        close(pipefd[0]);          /* Close unused read end */
+        while (n--)
+          write(pipefd[1], " ", 1);
+        close(pipefd[1]);          /* Reader will see EOF */
+        wait(NULL);                /* Wait for child */
+
+        fprintf(stdout, "time %f", (clock()-tt)*1. / CLOCKS_PER_SEC);
+        fflush(stdout);
+        exit(EXIT_SUCCESS);
+    }
+}
+
+```
+
+测试结果如下:
+```
+size 10
+time 0.000142
+size 100
+time 0.001112
+size 1000
+time 0.006507
+size 10000
+time 0.062490
+size 100000
+time 0.614841
+size 1000000
+time 5.929161
+```
